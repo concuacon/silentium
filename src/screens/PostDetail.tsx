@@ -16,7 +16,7 @@ const PostDetail: React.FC<DetailScreenProps> = ({ route }) => {
     const fetchPostAndComments = async () => {
       try {
         // Fetch post details
-        const postData = await fetchPostDetail(postId); 
+        const postData = await fetchPostDetail(postId);
         // Set post state
         setPost(postData);
 
@@ -45,12 +45,12 @@ const PostDetail: React.FC<DetailScreenProps> = ({ route }) => {
     return <Text>Error: {error}</Text>;
   }
 
-  const _renderItem = ({item}: {item: Comment}) => {
+  const _renderItem = ({ item }: { item: Comment }) => {
     return (
-    <View style={styles.commentContainer}>
-      <HTMLView value={item.text} />
-      <Text style={styles.commentAuthor}>By: {item.by}</Text>
-    </View>
+      <View style={styles.commentContainer}>
+        <HTMLView value={item.text} />
+        <Text style={styles.commentAuthor}>By: {item.by}</Text>
+      </View>
     );
   }
 

@@ -1,12 +1,12 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
-import { Text, FlatList, ActivityIndicator, Animated } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Animated } from 'react-native';
 
 import { fetchStories, Story } from '../utils/apiClient';
 import { NewsListScreenProps } from '../utils/types';
 import NewCard from '../components/NewCard';
+import PlaceholderItem from '../components/PlaceholderItem';
 
-
-const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
+const NewsList: React.FC<NewsListScreenProps> = ({ navigation }) => {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,15 +17,15 @@ const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
 
   const loadStories = useCallback(async (page: number, append: boolean = false) => {
     try {
-      if(append) {
+      if (append) {
         setLoadingMore(true);
-      }  else {
+      } else {
         setLoading(true);
       }
       const newStories = await fetchStories(page);
       setStories(prevStories => (append ? [...prevStories, ...newStories] : newStories));
       setPage(page);
-    } catch (error: unknown) {  
+    } catch (error: unknown) {
       if (error instanceof Error) {
         setError(error.message);
       } else {
@@ -74,23 +74,36 @@ const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
     return <ActivityIndicator style={{ color: '#000' }} />;
   };
 
+  const renderPlaceholder = () => (
+    <View>
+      {Array.from({ length: 8 }).map((_, index) => (
+        <PlaceholderItem key={index} />
+      ))}
+    </View>
+  );
+
   return (
-    <FlatList
-      data={stories}
-      keyExtractor={(item: { id: { toString: () => any; }; }, index: number) => `${item.id}-${index}`}
-      renderItem={({ item }: {item: Story}) => (
-        <NewCard
-          post={item}
-          onPress={() => navigation.navigate('Details', { postId: item.id })}
-        />
-      )}
-      onEndReached={handleLoadMore}
-      onEndReachedThreshold={0.5}
-      refreshing={isRefreshing}
-      onRefresh={handleRefresh}
-      ListFooterComponent={renderFooter}
-      contentContainerStyle={{padding: 10}}
-    />
+    loading ? (
+      renderPlaceholder()) : (
+      <FlatList
+        data={stories}
+        keyExtractor={(item: { id: { toString: () => any; }; }, index: number) => `${item.id}-${index}`}
+        renderItem={({ item }: { item: Story }) => (
+          <NewCard
+            post={item}
+            onPress={() => navigation.navigate('Details', { postId: item.id })}
+          />
+        )}
+        onEndReached={handleLoadMore}
+        onEndReachedThreshold={0.5}
+        refreshing={isRefreshing}
+        onRefresh={handleRefresh}
+        ListFooterComponent={renderFooter}
+        contentContainerStyle={{ padding: 10 }}
+      />
+    )
+
+
   );
 };
 

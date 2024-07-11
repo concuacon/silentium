@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  subreddit: {   
+  subreddit: {
     color: '#888',
   },
   meta: {
@@ -57,7 +57,7 @@ const styles = StyleSheet.create({
   },
   posted: {
     fontWeight: 'bold',
-    fontSize: 12 
+    fontSize: 12
   }
 });
 
