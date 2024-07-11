@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Post, Story } from '../utils/apiClient';
 import { formatDate } from '../utils/stringUtils';
 
@@ -15,7 +15,7 @@ const NewCard: React.FC<NewCardProps> = ({ post, onPress }) => {
         <Text style={styles.title}>{post.title}</Text>
         <Text style={styles.subreddit}>{formatDate(new Date(post.time))}</Text>
         <Text style={styles.meta}>Posted by <Text style={styles.posted}>{post.by}</Text></Text>
-        <Text style={styles.meta}>{post.descendants} comments</Text>
+        <Text style={styles.meta}>{post.descendants || 0} comments</Text>
       </View>
     </TouchableOpacity>
   );
@@ -27,6 +27,14 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    marginVertical: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
   },
   thumbnail: {
     width: 50,

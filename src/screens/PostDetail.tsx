@@ -66,7 +66,7 @@ const PostDetail: React.FC<DetailScreenProps> = ({ route }) => {
       )}
       <FlatList
         data={comments}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item: { id: { toString: () => any; }; }, index: number) => `${item.id}-${index}`}
         renderItem={_renderItem}
       />
     </View>

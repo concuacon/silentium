@@ -1,9 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
+import { Text, FlatList, ActivityIndicator, Animated } from 'react-native';
 
 import { fetchStories, Story } from '../utils/apiClient';
 import { NewsListScreenProps } from '../utils/types';
 import NewCard from '../components/NewCard';
+
 
 const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
   const [stories, setStories] = useState<Story[]>([]);
@@ -11,9 +12,16 @@ const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState<boolean>(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const loadStories = useCallback(async (page: number, append: boolean = false) => {
     try {
+      if(append) {
+        setLoadingMore(true);
+      }  else {
+        setLoading(true);
+      }
       const newStories = await fetchStories(page);
       setStories(prevStories => (append ? [...prevStories, ...newStories] : newStories));
       setPage(page);
@@ -24,8 +32,17 @@ const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
         setError('An unknown error occurred');
       }
     } finally {
-      setLoading(false);
+      if (loadingMore) {
+        setLoadingMore(false);
+      } else {
+        setLoading(false);
+      }
       setIsRefreshing(false);
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
     }
   }, []);
 
@@ -52,11 +69,16 @@ const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
     return <Text>Error: {error}</Text>;
   }
 
+  const renderFooter = () => {
+    if (!loadingMore) return null;
+    return <ActivityIndicator style={{ color: '#000' }} />;
+  };
+
   return (
     <FlatList
       data={stories}
-      keyExtractor={(item) => item.id.toString()}
-      renderItem={({ item }) => (
+      keyExtractor={(item: { id: { toString: () => any; }; }, index: number) => `${item.id}-${index}`}
+      renderItem={({ item }: {item: Story}) => (
         <NewCard
           post={item}
           onPress={() => navigation.navigate('Details', { postId: item.id })}
@@ -66,31 +88,10 @@ const NewsList: React.FC<NewsListScreenProps> = ({navigation}) => {
       onEndReachedThreshold={0.5}
       refreshing={isRefreshing}
       onRefresh={handleRefresh}
+      ListFooterComponent={renderFooter}
+      contentContainerStyle={{padding: 10}}
     />
   );
 };
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 8,
-    elevation: 2,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  author: {
-    fontSize: 14,
-    color: 'gray',
-  },
-  score: {
-    fontSize: 14,
-    color: 'green',
-  },
-});
 
 export default NewsList;
